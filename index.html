@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Sonergy - Controle de Projetos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        header {
+            background-color: #001f3f;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        #logout {
+            display: none;
+            float: right;
+            padding: 10px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        #logout:hover {
+            background-color: #ff1a1a;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            margin: 0 auto;
+        }
+        .partition {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .partition:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .partition h2 {
+            margin-bottom: 10px;
+            color: #001f3f;
+        }
+        .partition p {
+            font-size: 14px;
+            color: #666;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #001f3f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #004080;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 500px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.show {
+            display: block;
+            opacity: 1;
+            visibility: visible;
+        }
+        .close-btn {
+            background-color: #001f3f;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            button {
+                width: 100%;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Dashboard Sonergy - Controle de Projetos</h1>
+    <button id="logout" onclick="performLogout()">Sair</button>
+</header>
+
+<!-- Tela de Login -->
+<div id="loginScreen" style="text-align: center; padding: 50px;">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Usuário" style="padding: 10px; margin-bottom: 10px;"><br>
+    <input type="password" id="password" placeholder="Senha" style="padding: 10px; margin-bottom: 10px;"><br>
+    <button onclick="performLogin()">Entrar</button>
+    <div class="error-message" id="errorMessage">Credenciais inválidas. Tente novamente.</div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="container" style="display:none;">
+    <!-- Setor de Engenharia (Apenas Admin) -->
+    <div class="partition" id="engineeringSection" style="display:none;">
+        <h2>Setor de Engenharia</h2>
+        <p>Gerenciamento técnico de projetos fotovoltaicos. Especificações, dimensionamento e análise de eficiência.</p>
+        <button onclick="openEngineering()">Ver Detalhes</button>
+    </div>
+
+    <!-- Financeiro (Apenas Admin) -->
+    <div class="partition" id="financeSection" style="display:none;">
+        <h2>Financeiro</h2>
+        <p>Gestão de orçamentos, relatórios financeiros, controle de fluxo de caixa e status de pagamentos.</p>
+        <button onclick="openFinance()">Ver Relatórios</button>
+        <div class="chart-container">
+            <canvas id="financeChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Projetos (Apenas Admin) -->
+    <div class="partition" id="projectsSection" style="display:none;">
+        <h2>Projetos</h2>
+        <p>Monitoramento do andamento dos projetos e status de implementação das usinas fotovoltaicas.</p>
+        <button onclick="openProjects()">Acompanhar Projetos</button>
+        <div class="chart-container">
+            <canvas id="projectsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Vendas (Acesso Admin e Vendas) -->
+    <div class="partition" id="salesSection" style="display:none;">
+        <h2>Vendas</h2>
+        <p>Controle de leads, relatórios de vendas, acompanhamento de clientes e propostas enviadas.</p>
+        <button onclick="openSales()">Ver Vendas</button>
+        <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Monitoramento de Usina (Acesso Admin e Vendas) -->
+    <div class="partition" id="monitoringSection" style="display:none;">
+        <h2>Monitoramento de Usina</h2>
+        <p>Acompanhamento em tempo real da produção energética das usinas fotovoltaicas instaladas.</p>
+        <button onclick="openMonitoring()">Monitorar Usina</button>
+        <div class="chart-container">
+            <canvas id="energyChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Geração de Propostas (Acesso Admin e Vendas) -->
+    <div class="partition" id="proposalSection" style="display:none;">
+        <h2>Geração de Propostas/Dimensionamento</h2>
+        <p>Ferramenta para gerar propostas personalizadas em PDF e dimensionar usinas fotovoltaicas.</p>
+        <button onclick="generateProposal()">Gerar Proposta</button>
+    </div>
+</div>
+
+<!-- Modal para Detalhes de Engenharia -->
+<div id="engineeringModal" class="modal">
+    <h2>Detalhes do Setor de Engenharia</h2>
+    <p>Aqui você pode encontrar especificações técnicas, ferramentas CAD e sistemas de simulação.</p>
+    <button class="close-btn" onclick="closeEngineeringModal()">Fechar</button>
+</div>
+
+<!-- jsPDF para geração de propostas e Chart.js para gráficos -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Função de login e controle de permissões
+    function performLogin() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const errorMessage = document.getElementById("errorMessage");
+
+        if (username === "admin" && password === "1234") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir todas as seções para o Admin
+            document.getElementById("engineeringSection").style.display = "block";
+            document.getElementById("financeSection").style.display = "block";
+            document.getElementById("projectsSection").style.display = "block";
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+
+            localStorage.setItem("user", "admin"); // Persistir sessão no localStorage
+
+            errorMessage.style.display = "none"; // Esconder mensagem de erro
+        } else if (username === "vendas" && password === "5678") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir apenas as seções de Vendas e Propostas
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+
+            localStorage.setItem("user", "vendas"); // Persistir sessão no localStorage
+
+            errorMessage.style.display = "none"; // Esconder mensagem de erro
+        } else {
+            errorMessage.style.display = "block"; // Exibir mensagem de erro
+        }
+    }
+
+    // Função de logout
+    function performLogout() {
+        localStorage.removeItem("user");
+        document.getElementById("dashboard").style.display = "none";
+        document.getElementById("loginScreen").style.display = "block";
+        document.getElementById("logout").style.display = "none";
+    }
+
+    // Função para verificar a sessão do usuário ao carregar a página
+    window.onload = function() {
+        const user = localStorage.getItem("user");
+
+        if (user === "admin") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir todas as seções para o Admin
+            document.getElementById("engineeringSection").style.display = "block";
+            document.getElementById("financeSection").style.display = "block";
+            document.getElementById("projectsSection").style.display = "block";
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+
+        } else if (user === "vendas") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir apenas as seções de Vendas e Propostas
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+        }
+    };
+
+    // Função para abrir o modal de Engenharia
+    function openEngineering() {
+        document.getElementById("engineeringModal").classList.add("show");
+    }
+
+    // Função para fechar o modal de Engenharia
+    function closeEngineeringModal() {
+        document.getElementById("engineeringModal").classList.remove("show");
+    }
+
+    // Função para Relatórios Financeiros
+    function openFinance() {
+        const ctx = document.getElementById('financeChart').getContext('2d');
+        const financeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                datasets: [{
+                    label: 'Receitas (R$)',
+                    data: [50000, 52000, 51000, 54000, 58000, 60000, 62000, 63000, 61000, 59000, 62000, 65000],
+                    backgroundColor: 'rgba(0, 200, 83, 0.6)',
+                    borderColor: 'rgba(0, 200, 83, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Despesas (R$)',
+                    data: [20000, 22000, 19000, 21000, 23000, 24000, 26000, 25000, 23000, 22000, 24000, 25000],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Função para Projetos
+    function openProjects() {
+        const ctx = document.getElementById('projectsChart').getContext('2d');
+        const projectsChart = new Chart(ctx, {
+            type: 'horizontalBar',
+            data: {
+                labels: ['Projeto 1', 'Projeto 2', 'Projeto 3', 'Projeto 4'],
+                datasets: [{
+                    label: 'Progresso (%)',
+                    data: [80, 50, 30, 60],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+
+    // Função para Vendas (dados fictícios para o gráfico)
+    function openSales() {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+
+        // Dados fictícios para o gráfico de vendas
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                datasets: [{
+                    label: 'Vendas (R$)',
+                    data: [30000, 35000, 28000, 40000, 45000, 42000, 48000, 50000, 47000, 49000, 52000, 55000],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Função para Monitoramento de Usina
+    function openMonitoring() {
+        const ctx = document.getElementById('energyChart').getContext('2d');
+        const energyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                datasets: [{
+                    label: 'Produção Mensal de Energia (kWh)',
+                    data: [1200, 1400, 1300, 1500, 1600, 1700, 1800, 1650, 1550, 1450, 1350, 1250],
+                    backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Geração de proposta PDF com mais detalhes
+    function generateProposal() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Cabeçalho do PDF
+        doc.setFontSize(18);
+        doc.text('Proposta Comercial - Sistema Fotovoltaico', 20, 20);
+        
+        // Informações do cliente
+        doc.setFontSize(12);
+        doc.text('Ao Sr. João da Silva', 20, 40);
+        doc.text('Endereço: Rua das Flores, 123, Maringá - PR', 20, 50);
+
+        // Seção de Características do Gerador
+        doc.setFontSize(14);
+        doc.text('1. Características do Gerador', 20, 70);
+        doc.setFontSize(12);
+        doc.text('Potência do Gerador: 184,97 kWp', 20, 80);
+        doc.text('Quantidade de Módulos: 349 módulos de 530W', 20, 90);
+        doc.text('Produção Anual Estimada: 283.020 kWh', 20, 100);
+        doc.text('Área Mínima Necessária: 910 m²', 20, 110);
+
+        // Seção de custos
+        doc.setFontSize(14);
+        doc.text('2. Investimento', 20, 130);
+        doc.setFontSize(12);
+        doc.text('Valor do Sistema: R$ 1.030.000,00', 20, 140);
+        doc.text('Condições de Pagamento: 30% de entrada e saldo em até 24 vezes.', 20, 150);
+        
+        // Assinatura
+        doc.setFontSize(12);
+        doc.text('Atenciosamente,', 20, 180);
+        doc.text('Eduardo Reis - Sonergy Brasil', 20, 190);
+        doc.text('(44) 99179-6941', 20, 200);
+
+        // Gera o PDF e faz o download
+        doc.save('proposta_comercial_sonergy.pdf');
+    }
+</script>
+
+</body>
+</html>
