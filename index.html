@@ -163,6 +163,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- Função para o login -->
+<script>
+    function performLogin() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const errorMessage = document.getElementById("errorMessage");
+
+        if (username === "admin" && password === "1234") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+            errorMessage.style.display = "none";
+        } else {
+            errorMessage.style.display = "block";
+        }
+    }
+
+    function performLogout() {
+        document.getElementById("dashboard").style.display = "none";
+        document.getElementById("loginScreen").style.display = "block";
+        document.getElementById("logout").style.display = "none";
+    }
+</script>
+
 <!-- Código JavaScript para Trello e Criação de Card -->
 <script>
     // Função para criar um novo card no Trello
