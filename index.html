@@ -143,58 +143,12 @@
 
 <!-- Dashboard -->
 <div id="dashboard" class="container" style="display:none;">
-    <!-- Setor de Engenharia (Apenas Admin) -->
-    <div class="partition" id="engineeringSection" style="display:none;">
-        <h2>Setor de Engenharia</h2>
-        <p>Gerenciamento técnico de projetos fotovoltaicos. Especificações, dimensionamento e análise de eficiência.</p>
-        <button onclick="openEngineering()">Ver Detalhes</button>
-    </div>
-
-    <!-- Financeiro (Apenas Admin) -->
-    <div class="partition" id="financeSection" style="display:none;">
-        <h2>Financeiro</h2>
-        <p>Gestão de orçamentos, relatórios financeiros, controle de fluxo de caixa e status de pagamentos.</p>
-        <button onclick="openFinance()">Ver Relatórios</button>
-        <div class="chart-container">
-            <canvas id="financeChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Projetos (Apenas Admin) -->
-    <div class="partition" id="projectsSection" style="display:none;">
-        <h2>Projetos</h2>
-        <p>Monitoramento do andamento dos projetos e status de implementação das usinas fotovoltaicas.</p>
-        <button onclick="openProjects()">Acompanhar Projetos</button>
-        <div class="chart-container">
-            <canvas id="projectsChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Vendas (Acesso Admin e Vendas) -->
-    <div class="partition" id="salesSection" style="display:none;">
-        <h2>Vendas</h2>
-        <p>Controle de leads, relatórios de vendas, acompanhamento de clientes e propostas enviadas.</p>
-        <button onclick="openSales()">Ver Vendas</button>
-        <div class="chart-container">
-            <canvas id="salesChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Monitoramento de Usina (Acesso Admin e Vendas) -->
-    <div class="partition" id="monitoringSection" style="display:none;">
-        <h2>Monitoramento de Usina</h2>
-        <p>Acompanhamento em tempo real da produção energética das usinas fotovoltaicas instaladas.</p>
-        <button onclick="openMonitoring()">Monitorar Usina</button>
-        <div class="chart-container">
-            <canvas id="energyChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Geração de Propostas (Acesso Admin e Vendas) -->
+    <!-- Seções do dashboard... -->
     <div class="partition" id="proposalSection" style="display:none;">
         <h2>Geração de Propostas/Dimensionamento</h2>
         <p>Ferramenta para gerar propostas personalizadas em PDF e dimensionar usinas fotovoltaicas.</p>
         <button onclick="generateProposal()">Gerar Proposta</button>
+        <button onclick="createTrelloCard()">Criar Card no Trello</button>
     </div>
 </div>
 
@@ -208,205 +162,39 @@
 <!-- jsPDF para geração de propostas e Chart.js para gráficos -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Código JavaScript para Trello e Criação de Card -->
 <script>
-    // Função de login e controle de permissões
-    function performLogin() {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const errorMessage = document.getElementById("errorMessage");
+    // Função para criar um novo card no Trello
+    async function createTrelloCard() {
+        const cardData = {
+            name: 'Novo Card',
+            desc: 'Descrição do card',
+            idList: 'SEU_ID_DA_LISTA_DO_TRELLO', // Substitua pelo ID da lista no Trello
+        };
 
-        if (username === "admin" && password === "1234") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-
-            // Exibir todas as seções para o Admin
-            document.getElementById("engineeringSection").style.display = "block";
-            document.getElementById("financeSection").style.display = "block";
-            document.getElementById("projectsSection").style.display = "block";
-            document.getElementById("salesSection").style.display = "block";
-            document.getElementById("monitoringSection").style.display = "block";
-            document.getElementById("proposalSection").style.display = "block";
-
-            localStorage.setItem("user", "admin"); // Persistir sessão no localStorage
-
-            errorMessage.style.display = "none"; // Esconder mensagem de erro
-        } else if (username === "vendas" && password === "5678") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-
-            // Exibir apenas as seções de Vendas e Propostas
-            document.getElementById("salesSection").style.display = "block";
-            document.getElementById("monitoringSection").style.display = "block";
-            document.getElementById("proposalSection").style.display = "block";
-
-            localStorage.setItem("user", "vendas"); // Persistir sessão no localStorage
-
-            errorMessage.style.display = "none"; // Esconder mensagem de erro
-        } else {
-            errorMessage.style.display = "block"; // Exibir mensagem de erro
-        }
-    }
-
-    // Função de logout
-    function performLogout() {
-        localStorage.removeItem("user");
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("loginScreen").style.display = "block";
-        document.getElementById("logout").style.display = "none";
-    }
-
-    // Função para verificar a sessão do usuário ao carregar a página
-    window.onload = function() {
-        const user = localStorage.getItem("user");
-
-        if (user === "admin") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-
-            // Exibir todas as seções para o Admin
-            document.getElementById("engineeringSection").style.display = "block";
-            document.getElementById("financeSection").style.display = "block";
-            document.getElementById("projectsSection").style.display = "block";
-            document.getElementById("salesSection").style.display = "block";
-            document.getElementById("monitoringSection").style.display = "block";
-            document.getElementById("proposalSection").style.display = "block";
-
-        } else if (user === "vendas") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-
-            // Exibir apenas as seções de Vendas e Propostas
-            document.getElementById("salesSection").style.display = "block";
-            document.getElementById("monitoringSection").style.display = "block";
-            document.getElementById("proposalSection").style.display = "block";
-        }
-    };
-
-    // Função para abrir o modal de Engenharia
-    function openEngineering() {
-        document.getElementById("engineeringModal").classList.add("show");
-    }
-
-    // Função para fechar o modal de Engenharia
-    function closeEngineeringModal() {
-        document.getElementById("engineeringModal").classList.remove("show");
-    }
-
-    // Função para Relatórios Financeiros
-    function openFinance() {
-        const ctx = document.getElementById('financeChart').getContext('2d');
-        const financeChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                datasets: [{
-                    label: 'Receitas (R$)',
-                    data: [50000, 52000, 51000, 54000, 58000, 60000, 62000, 63000, 61000, 59000, 62000, 65000],
-                    backgroundColor: 'rgba(0, 200, 83, 0.6)',
-                    borderColor: 'rgba(0, 200, 83, 1)',
-                    borderWidth: 1
+        try {
+            const response = await fetch('http://localhost:3000/create-card', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-                {
-                    label: 'Despesas (R$)',
-                    data: [20000, 22000, 19000, 21000, 23000, 24000, 26000, 25000, 23000, 22000, 24000, 25000],
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+                body: JSON.stringify(cardData),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert('Card criado com sucesso no Trello!');
+                console.log('Card criado:', data);
+            } else {
+                alert('Erro ao criar o card');
             }
-        });
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+        }
     }
 
-    // Função para Projetos
-    function openProjects() {
-        const ctx = document.getElementById('projectsChart').getContext('2d');
-        const projectsChart = new Chart(ctx, {
-            type: 'horizontalBar',
-            data: {
-                labels: ['Projeto 1', 'Projeto 2', 'Projeto 3', 'Projeto 4'],
-                datasets: [{
-                    label: 'Progresso (%)',
-                    data: [80, 50, 30, 60],
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
-    }
-
-    // Função para Vendas (dados fictícios para o gráfico)
-    function openSales() {
-        const ctx = document.getElementById('salesChart').getContext('2d');
-
-        // Dados fictícios para o gráfico de vendas
-        const salesChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                datasets: [{
-                    label: 'Vendas (R$)',
-                    data: [30000, 35000, 28000, 40000, 45000, 42000, 48000, 50000, 47000, 49000, 52000, 55000],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    // Função para Monitoramento de Usina
-    function openMonitoring() {
-        const ctx = document.getElementById('energyChart').getContext('2d');
-        const energyChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                datasets: [{
-                    label: 'Produção Mensal de Energia (kWh)',
-                    data: [1200, 1400, 1300, 1500, 1600, 1700, 1800, 1650, 1550, 1450, 1350, 1250],
-                    backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                    borderColor: 'rgba(0, 123, 255, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    // Geração de proposta PDF com mais detalhes
+    // Função para gerar proposta em PDF
     function generateProposal() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
@@ -414,7 +202,7 @@
         // Cabeçalho do PDF
         doc.setFontSize(18);
         doc.text('Proposta Comercial - Sistema Fotovoltaico', 20, 20);
-        
+
         // Informações do cliente
         doc.setFontSize(12);
         doc.text('Ao Sr. João da Silva', 20, 40);
@@ -435,7 +223,7 @@
         doc.setFontSize(12);
         doc.text('Valor do Sistema: R$ 1.030.000,00', 20, 140);
         doc.text('Condições de Pagamento: 30% de entrada e saldo em até 24 vezes.', 20, 150);
-        
+
         // Assinatura
         doc.setFontSize(12);
         doc.text('Atenciosamente,', 20, 180);
