@@ -163,32 +163,29 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Função para o login -->
+<!-- Código JavaScript para Trello e Criação de Card -->
 <script>
+    // Função de login
     function performLogin() {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const errorMessage = document.getElementById("errorMessage");
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
-        if (username === "admin" && password === "1234") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-            errorMessage.style.display = "none";
+        if (username === 'admin' && password === '1234') {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'grid';
+            document.getElementById('logout').style.display = 'inline-block';
         } else {
-            errorMessage.style.display = "block";
+            document.getElementById('errorMessage').style.display = 'block';
         }
     }
 
+    // Função de logout
     function performLogout() {
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("loginScreen").style.display = "block";
-        document.getElementById("logout").style.display = "none";
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'block';
+        document.getElementById('logout').style.display = 'none';
     }
-</script>
 
-<!-- Código JavaScript para Trello e Criação de Card -->
-<script>
     // Função para criar um novo card no Trello
     async function createTrelloCard() {
         const cardData = {
@@ -244,20 +241,4 @@
         // Seção de custos
         doc.setFontSize(14);
         doc.text('2. Investimento', 20, 130);
-        doc.setFontSize(12);
-        doc.text('Valor do Sistema: R$ 1.030.000,00', 20, 140);
-        doc.text('Condições de Pagamento: 30% de entrada e saldo em até 24 vezes.', 20, 150);
-
-        // Assinatura
-        doc.setFontSize(12);
-        doc.text('Atenciosamente,', 20, 180);
-        doc.text('Eduardo Reis - Sonergy Brasil', 20, 190);
-        doc.text('(44) 99179-6941', 20, 200);
-
-        // Gera o PDF e faz o download
-        doc.save('proposta_comercial_sonergy.pdf');
-    }
-</script>
-
-</body>
-</html>
+        doc.setFontSize(
