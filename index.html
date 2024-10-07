@@ -143,55 +143,8 @@
 
 <!-- Dashboard -->
 <div id="dashboard" class="container" style="display:none;">
-    <!-- Setor de Engenharia -->
-    <div class="partition" id="engineeringSection" style="display:none;">
-        <h2>Setor de Engenharia</h2>
-        <p>Gerenciamento técnico de projetos fotovoltaicos. Especificações, dimensionamento e análise de eficiência.</p>
-        <button onclick="openEngineering()">Ver Detalhes</button>
-    </div>
-
-    <!-- Financeiro -->
-    <div class="partition" id="financeSection" style="display:none;">
-        <h2>Financeiro</h2>
-        <p>Gestão de orçamentos, relatórios financeiros, controle de fluxo de caixa e status de pagamentos.</p>
-        <button onclick="openFinance()">Ver Relatórios</button>
-        <div class="chart-container">
-            <canvas id="financeChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Projetos -->
-    <div class="partition" id="projectsSection" style="display:none;">
-        <h2>Projetos</h2>
-        <p>Monitoramento do andamento dos projetos e status de implementação das usinas fotovoltaicas.</p>
-        <button onclick="openProjects()">Acompanhar Projetos</button>
-        <div class="chart-container">
-            <canvas id="projectsChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Vendas -->
-    <div class="partition" id="salesSection" style="display:none;">
-        <h2>Vendas</h2>
-        <p>Controle de leads, relatórios de vendas, acompanhamento de clientes e propostas enviadas.</p>
-        <button onclick="openSales()">Ver Vendas</button>
-        <div class="chart-container">
-            <canvas id="salesChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Monitoramento de Usina -->
-    <div class="partition" id="monitoringSection" style="display:none;">
-        <h2>Monitoramento de Usina</h2>
-        <p>Acompanhamento em tempo real da produção energética das usinas fotovoltaicas instaladas.</p>
-        <button onclick="openMonitoring()">Monitorar Usina</button>
-        <div class="chart-container">
-            <canvas id="energyChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Geração de Propostas/Dimensionamento -->
-    <div class="partition" id="proposalSection" style="display:none;">
+    <!-- Seções do dashboard... -->
+    <div class="partition" id="proposalSection">
         <h2>Geração de Propostas/Dimensionamento</h2>
         <p>Ferramenta para gerar propostas personalizadas em PDF e dimensionar usinas fotovoltaicas.</p>
         <button onclick="generateProposal()">Gerar Proposta</button>
@@ -199,17 +152,8 @@
     </div>
 </div>
 
-<!-- Modal para Detalhes de Engenharia -->
-<div id="engineeringModal" class="modal">
-    <h2>Detalhes do Setor de Engenharia</h2>
-    <p>Aqui você pode encontrar especificações técnicas, ferramentas CAD e sistemas de simulação.</p>
-    <button class="close-btn" onclick="closeEngineeringModal()">Fechar</button>
-</div>
-
-<!-- jsPDF para geração de propostas e Chart.js para gráficos -->
+<!-- jsPDF para geração de propostas e integração com backend -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     // Função de login e controle de permissões
     function performLogin() {
@@ -221,42 +165,10 @@
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("dashboard").style.display = "grid";
             document.getElementById("logout").style.display = "inline-block";
-
-            // Exibir todas as seções para o Admin
-            document.getElementById("engineeringSection").style.display = "block";
-            document.getElementById("financeSection").style.display = "block";
-            document.getElementById("projectsSection").style.display = "block";
-            document.getElementById("salesSection").style.display = "block";
-            document.getElementById("monitoringSection").style.display = "block";
-            document.getElementById("proposalSection").style.display = "block";
-
-            localStorage.setItem("user", "admin"); // Persistir sessão no localStorage
-
-            errorMessage.style.display = "none"; // Esconder mensagem de erro
-        } else if (username === "vendas" && password === "5678") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-
-            // Exibir apenas as seções de Vendas e Propostas
-            document.getElementById("salesSection").style.display = "block";
-            document.getElementById("monitoringSection").style.display = "block";
-            document.getElementById("proposalSection").style.display = "block";
-
-            localStorage.setItem("user", "vendas"); // Persistir sessão no localStorage
-
             errorMessage.style.display = "none"; // Esconder mensagem de erro
         } else {
             errorMessage.style.display = "block"; // Exibir mensagem de erro
         }
-    }
-
-    // Função de logout
-    function performLogout() {
-        localStorage.removeItem("user");
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("loginScreen").style.display = "block";
-        document.getElementById("logout").style.display = "none";
     }
 
     // Função para criar um novo card no Trello
