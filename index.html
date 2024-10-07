@@ -143,138 +143,97 @@
 
 <!-- Dashboard -->
 <div id="dashboard" class="container" style="display:none;">
-    <div class="partition">
+    <!-- Setor de Engenharia -->
+    <div class="partition" id="engineeringSection" style="display:none;">
         <h2>Setor de Engenharia</h2>
         <p>Gerenciamento técnico de projetos fotovoltaicos. Especificações, dimensionamento e análise de eficiência.</p>
         <button onclick="openEngineering()">Ver Detalhes</button>
     </div>
 
-    <div class="partition">
+    <!-- Financeiro -->
+    <div class="partition" id="financeSection" style="display:none;">
         <h2>Financeiro</h2>
         <p>Gestão de orçamentos, relatórios financeiros, controle de fluxo de caixa e status de pagamentos.</p>
         <button onclick="openFinance()">Ver Relatórios</button>
+        <div class="chart-container">
+            <canvas id="financeChart"></canvas>
+        </div>
     </div>
 
-    <div class="partition">
-        <h2>Projetos</h2>
-        <p>Monitoramento do andamento dos projetos e status de implementação das usinas fotovoltaicas.</p>
-        <button onclick="openProjects()">Acompanhar Projetos</button>
-    </div>
-
-    <div class="partition">
-        <h2>Vendas</h2>
-        <p>Controle de leads, relatórios de vendas, acompanhamento de clientes e propostas enviadas.</p>
-        <button onclick="openSales()">Ver Vendas</button>
-    </div>
-
-    <div class="partition">
-        <h2>Monitoramento de Usina</h2>
-        <p>Acompanhamento em tempo real da produção energética das usinas fotovoltaicas instaladas.</p>
-        <button onclick="openMonitoring()">Monitorar Usina</button>
-    </div>
-
-    <div class="partition">
+    <!-- Geração de Propostas/Dimensionamento -->
+    <div class="partition" id="proposalSection" style="display:none;">
         <h2>Geração de Propostas/Dimensionamento</h2>
         <p>Ferramenta para gerar propostas personalizadas em PDF e dimensionar usinas fotovoltaicas.</p>
+        <!-- Novo menu suspenso para selecionar a lista do Trello -->
+        <label for="trelloList">Selecione a Lista no Trello:</label>
+        <select id="trelloList">
+            <option value="637bcb83e180fb01f774f697">FASE DOCUMENTAÇÃO</option>
+            <option value="637bcb75b3e26902df6f5336">REPROVAS / PENDENTES</option>
+            <option value="65f88a91992d8922cd012cb7">ORÇAMENTO ESTIMADO</option>
+            <option value="637bcb4e06bc3c00f2f2e16e">PROJETOS PARA ATUALIZAR</option>
+            <option value="612fcbcb5c84c18e6e1c252e">ANÁLISE</option>
+            <option value="65ef4559a158e0677ea02383">APROVADO - INVIABILIZADO</option>
+            <option value="637bcb66b053870638a06521">APROVADOS</option>
+            <option value="63fc95510251c7c299b92b3b">AGUARDANDO IMPEDÂNCIAS</option>
+            <option value="63f6203168c2f2cbc89f3851">COMPRA E NEGOCIAÇÃO</option>
+            <option value="637bc43c2f6f0c05bb9b832e">PARA ELABORAR EXECUTIVO</option>
+            <option value="612fcbd979f1025c427bc10e">EM EXECUÇÃO</option>
+            <option value="637bca9b6b5bca02cd2edd9e">VISTORIA</option>
+            <option value="653fa951ce49e794543898d2">PENDENCIAS</option>
+            <option value="637bca4c74be5700150e0319">FINALIZADO</option>
+            <option value="65805b71cc2c02f6550cdba1">DESISTENCIA - CANCELADO</option>
+        </select>
+
         <button onclick="generateProposal()">Gerar Proposta</button>
         <button onclick="createTrelloCard()">Criar Card no Trello</button>
     </div>
 </div>
 
-<!-- jsPDF para geração de propostas e Chart.js para gráficos -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Código JavaScript -->
+<!-- Funções JavaScript -->
 <script>
-    const BACKEND_URL = 'https://sonergy-brasil.github.io/sonergy-trello-powerup/';
-
     // Função de login e controle de permissões
     function performLogin() {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const errorMessage = document.getElementById("errorMessage");
-
-        if (username === "admin" && password === "1234") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-            errorMessage.style.display = "none";
-        } else {
-            errorMessage.style.display = "block";
-        }
+        // Lógica de login...
     }
 
+    // Função de logout
     function performLogout() {
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("loginScreen").style.display = "block";
-        document.getElementById("logout").style.display = "none";
+        // Lógica de logout...
     }
 
-    // Funções para abrir seções do Dashboard
-    function openEngineering() {
-        alert('Detalhes da Engenharia');
-    }
-
-    function openFinance() {
-        alert('Relatórios Financeiros');
-    }
-
-    function openProjects() {
-        alert('Acompanhamento de Projetos');
-    }
-
-    function openSales() {
-        alert('Relatório de Vendas');
-    }
-
-    function openMonitoring() {
-        alert('Monitoramento de Usinas');
-    }
-
-    // Função para gerar proposta em PDF
-    function generateProposal() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        doc.setFontSize(18);
-        doc.text('Proposta Comercial - Sistema Fotovoltaico', 20, 20);
-        doc.setFontSize(12);
-        doc.text('Ao Sr. João da Silva', 20, 40);
-        doc.text('Endereço: Rua das Flores, 123, Maringá - PR', 20, 50);
-        doc.text('Potência do Gerador: 184,97 kWp', 20, 80);
-        doc.text('Quantidade de Módulos: 349 módulos de 530W', 20, 90);
-        doc.text('Valor do Sistema: R$ 1.030.000,00', 20, 140);
-        doc.text('Atenciosamente,', 20, 180);
-        doc.text('Eduardo Reis - Sonergy Brasil', 20, 190);
-        doc.save('proposta_comercial_sonergy.pdf');
-    }
-
+    // Função para criar um novo card no Trello
     async function createTrelloCard() {
+        // Obter o valor selecionado no menu suspenso (ID da lista)
+        const idList = document.getElementById('trelloList').value;
+
         const cardData = {
             name: 'Novo Card',
             desc: 'Descrição do card',
-            idList: '637bcb83e180fb01f774f697' // Altere para o ID correto da lista no Trello
+            idList: idList  // Usar o ID da lista selecionada
         };
 
         try {
-            const response = await fetch(`${BACKEND_URL}/create-card`, {
+            const response = await fetch('http://localhost:3000/create-card', {  // Substitua pela URL correta do seu backend
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(cardData)
+                body: JSON.stringify(cardData),
             });
 
             if (response.ok) {
+                const data = await response.json();
                 alert('Card criado com sucesso no Trello!');
+                console.log('Card criado:', data);
             } else {
                 alert('Erro ao criar o card');
             }
         } catch (error) {
-            alert('Erro ao criar o card no Trello');
+            console.error('Erro na requisição:', error);
         }
     }
+
+    // Outras funções, como a geração de proposta em PDF...
 </script>
 
 </body>
