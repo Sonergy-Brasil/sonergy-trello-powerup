@@ -12,15 +12,20 @@
             background-color: #f0f0f0;
             color: #333;
         }
+
         header {
             background-color: #001f3f;
             color: white;
             text-align: center;
             padding: 20px;
+            position: relative;
         }
+
         #logout {
             display: none;
-            float: right;
+            position: absolute;
+            right: 20px;
+            top: 20px;
             padding: 10px 20px;
             background-color: #ff4d4d;
             color: white;
@@ -28,9 +33,11 @@
             border: none;
             border-radius: 5px;
         }
+
         #logout:hover {
             background-color: #ff1a1a;
         }
+
         .container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -38,6 +45,7 @@
             padding: 20px;
             margin: 0 auto;
         }
+
         .partition {
             background-color: white;
             padding: 20px;
@@ -45,19 +53,24 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
             transition: all 0.3s ease;
+            position: relative;
         }
+
         .partition:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
+
         .partition h2 {
             margin-bottom: 10px;
             color: #001f3f;
         }
+
         .partition p {
             font-size: 14px;
             color: #666;
         }
+
         button {
             padding: 10px 20px;
             background-color: #001f3f;
@@ -68,13 +81,28 @@
             margin-top: 10px;
             transition: background-color 0.3s ease;
         }
+
         button:hover {
             background-color: #004080;
         }
-        .chart-container {
-            width: 100%;
-            height: 300px;
+
+        .loading-spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #001f3f;
+            animation: spin 1s linear infinite;
+            margin-top: 10px;
         }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -90,11 +118,13 @@
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
+
         .modal.show {
             display: block;
             opacity: 1;
             visibility: visible;
         }
+
         .close-btn {
             background-color: #001f3f;
             color: white;
@@ -104,20 +134,30 @@
             border-radius: 5px;
             margin-top: 10px;
         }
+
         .error-message {
             color: red;
             margin-top: 10px;
             display: none;
         }
+
+        .success-message {
+            color: green;
+            margin-top: 10px;
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
         @media (max-width: 480px) {
             .container {
                 grid-template-columns: 1fr;
             }
+
             button {
                 width: 100%;
                 margin-top: 15px;
@@ -143,61 +183,116 @@
 
 <!-- Dashboard -->
 <div id="dashboard" class="container" style="display:none;">
-    <!-- Seções do dashboard... -->
-    <div class="partition" id="proposalSection">
+    <div class="partition">
+        <h2>Setor de Engenharia</h2>
+        <p>Gerenciamento técnico de projetos fotovoltaicos. Especificações, dimensionamento e análise de eficiência.</p>
+        <button onclick="openEngineering()">Ver Detalhes</button>
+    </div>
+
+    <div class="partition">
+        <h2>Financeiro</h2>
+        <p>Gestão de orçamentos, relatórios financeiros, controle de fluxo de caixa e status de pagamentos.</p>
+        <button onclick="openFinance()">Ver Relatórios</button>
+    </div>
+
+    <div class="partition">
+        <h2>Projetos</h2>
+        <p>Monitoramento do andamento dos projetos e status de implementação das usinas fotovoltaicas.</p>
+        <button onclick="openProjects()">Acompanhar Projetos</button>
+    </div>
+
+    <div class="partition">
+        <h2>Vendas</h2>
+        <p>Controle de leads, relatórios de vendas, acompanhamento de clientes e propostas enviadas.</p>
+        <button onclick="openSales()">Ver Vendas</button>
+    </div>
+
+    <div class="partition">
+        <h2>Monitoramento de Usina</h2>
+        <p>Acompanhamento em tempo real da produção energética das usinas fotovoltaicas instaladas.</p>
+        <button onclick="openMonitoring()">Monitorar Usina</button>
+    </div>
+
+    <div class="partition">
         <h2>Geração de Propostas/Dimensionamento</h2>
         <p>Ferramenta para gerar propostas personalizadas em PDF e dimensionar usinas fotovoltaicas.</p>
         <button onclick="generateProposal()">Gerar Proposta</button>
         <button onclick="createTrelloCard()">Criar Card no Trello</button>
+        <div class="loading-spinner" id="loadingSpinner"></div>
     </div>
 </div>
 
-<!-- jsPDF para geração de propostas e integração com backend -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-    // Função de login e controle de permissões
-    function performLogin() {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const errorMessage = document.getElementById("errorMessage");
+<!-- Modal para Detalhes de Engenharia -->
+<div id="engineeringModal" class="modal">
+    <h2>Detalhes do Setor de Engenharia</h2>
+    <p>Aqui você pode encontrar especificações técnicas, ferramentas CAD e sistemas de simulação.</p>
+    <button class="close-btn" onclick="closeEngineeringModal()">Fechar</button>
+</div>
 
-        if (username === "admin" && password === "1234") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-            errorMessage.style.display = "none"; // Esconder mensagem de erro
-        } else {
-            errorMessage.style.display = "block"; // Exibir mensagem de erro
-        }
-    }
+<!-- jsPDF para geração de propostas e Chart.js para gráficos -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Código JavaScript -->
+<script>
+    const BACKEND_URL = 'https://sonergy-brasil.github.io/sonergy-trello-powerup/'; // Atualizar para a URL correta do backend
 
     // Função para criar um novo card no Trello
     async function createTrelloCard() {
         const cardData = {
-            name: 'Novo Card',
-            desc: 'Descrição do card',
-            idList: 'SEU_ID_DA_LISTA_DO_TRELLO', // Substitua pelo ID da lista no Trello
+            name: 'Novo Card de Exemplo',
+            desc: 'Descrição do card de exemplo',
+            listName: 'FASE DOCUMENTAÇÃO' // Mudar para o nome correto da lista
         };
 
         try {
-            const response = await fetch('http://localhost:3000/create-card', {
+            document.getElementById('loadingSpinner').style.display = 'block';
+
+            const response = await fetch(`${BACKEND_URL}/create-card`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(cardData),
+                body: JSON.stringify(cardData)
             });
+
+            document.getElementById('loadingSpinner').style.display = 'none';
 
             if (response.ok) {
                 const data = await response.json();
                 alert('Card criado com sucesso no Trello!');
                 console.log('Card criado:', data);
             } else {
-                alert('Erro ao criar o card');
+                const error = await response.json();
+                console.error('Erro ao criar card:', error);
+                alert('Erro ao criar o card. Verifique o console para mais detalhes.');
             }
         } catch (error) {
+            document.getElementById('loadingSpinner').style.display = 'none';
             console.error('Erro na requisição:', error);
+            alert('Erro ao criar o card no Trello.');
         }
+    }
+
+    // Funções para exibir seções de gráficos (placeholders)
+    function openEngineering() {
+        alert('Detalhes da Engenharia');
+    }
+
+    function openFinance() {
+        alert('Relatórios Financeiros');
+    }
+
+    function openProjects() {
+        alert('Acompanhamento de Projetos');
+    }
+
+    function openSales() {
+        alert('Relatório de Vendas');
+    }
+
+    function openMonitoring() {
+        alert('Monitoramento de Usinas');
     }
 
     // Função para gerar proposta em PDF
