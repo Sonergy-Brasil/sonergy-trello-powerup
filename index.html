@@ -264,7 +264,7 @@
         const cardData = {
             name: 'Novo Card',
             desc: 'Descrição do card',
-            idList: 'SEU_ID_DA_LISTA_DO_TRELLO', // Substitua pelo ID da lista no Trello
+            idList: '637bcb83e180fb01f774f697', // Substitua pelo ID da lista no Trello
         };
 
         try {
@@ -327,6 +327,36 @@
         // Gera o PDF e faz o download
         doc.save('proposta_comercial_sonergy.pdf');
     }
+
+    // Função para verificar a sessão do usuário ao carregar a página
+    window.onload = function() {
+        const user = localStorage.getItem("user");
+
+        if (user === "admin") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir todas as seções para o Admin
+            document.getElementById("engineeringSection").style.display = "block";
+            document.getElementById("financeSection").style.display = "block";
+            document.getElementById("projectsSection").style.display = "block";
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+
+        } else if (user === "vendas") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir apenas as seções de Vendas e Propostas
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+        }
+    };
+
 </script>
 
 </body>
