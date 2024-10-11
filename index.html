@@ -160,60 +160,115 @@
         </div>
     </div>
 
+    <!-- Projetos -->
+    <div class="partition" id="projectsSection" style="display:none;">
+        <h2>Projetos</h2>
+        <p>Monitoramento do andamento dos projetos e status de implementação das usinas fotovoltaicas.</p>
+        <button onclick="openProjects()">Acompanhar Projetos</button>
+        <div class="chart-container">
+            <canvas id="projectsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Vendas -->
+    <div class="partition" id="salesSection" style="display:none;">
+        <h2>Vendas</h2>
+        <p>Controle de leads, relatórios de vendas, acompanhamento de clientes e propostas enviadas.</p>
+        <button onclick="openSales()">Ver Vendas</button>
+        <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Monitoramento de Usina -->
+    <div class="partition" id="monitoringSection" style="display:none;">
+        <h2>Monitoramento de Usina</h2>
+        <p>Acompanhamento em tempo real da produção energética das usinas fotovoltaicas instaladas.</p>
+        <button onclick="openMonitoring()">Monitorar Usina</button>
+        <div class="chart-container">
+            <canvas id="energyChart"></canvas>
+        </div>
+    </div>
+
     <!-- Geração de Propostas/Dimensionamento -->
     <div class="partition" id="proposalSection" style="display:none;">
         <h2>Geração de Propostas/Dimensionamento</h2>
         <p>Ferramenta para gerar propostas personalizadas em PDF e dimensionar usinas fotovoltaicas.</p>
-        <!-- Novo menu suspenso para selecionar a lista do Trello -->
-        <label for="trelloList">Selecione a Lista no Trello:</label>
-        <select id="trelloList">
-            <option value="637bcb83e180fb01f774f697">FASE DOCUMENTAÇÃO</option>
-            <option value="637bcb75b3e26902df6f5336">REPROVAS / PENDENTES</option>
-            <option value="65f88a91992d8922cd012cb7">ORÇAMENTO ESTIMADO</option>
-            <option value="637bcb4e06bc3c00f2f2e16e">PROJETOS PARA ATUALIZAR</option>
-            <option value="612fcbcb5c84c18e6e1c252e">ANÁLISE</option>
-            <option value="65ef4559a158e0677ea02383">APROVADO - INVIABILIZADO</option>
-            <option value="637bcb66b053870638a06521">APROVADOS</option>
-            <option value="63fc95510251c7c299b92b3b">AGUARDANDO IMPEDÂNCIAS</option>
-            <option value="63f6203168c2f2cbc89f3851">COMPRA E NEGOCIAÇÃO</option>
-            <option value="637bc43c2f6f0c05bb9b832e">PARA ELABORAR EXECUTIVO</option>
-            <option value="612fcbd979f1025c427bc10e">EM EXECUÇÃO</option>
-            <option value="637bca9b6b5bca02cd2edd9e">VISTORIA</option>
-            <option value="653fa951ce49e794543898d2">PENDENCIAS</option>
-            <option value="637bca4c74be5700150e0319">FINALIZADO</option>
-            <option value="65805b71cc2c02f6550cdba1">DESISTENCIA - CANCELADO</option>
-        </select>
-
         <button onclick="generateProposal()">Gerar Proposta</button>
         <button onclick="createTrelloCard()">Criar Card no Trello</button>
     </div>
 </div>
 
-<!-- Funções JavaScript -->
+<!-- Modal para Detalhes de Engenharia -->
+<div id="engineeringModal" class="modal">
+    <h2>Detalhes do Setor de Engenharia</h2>
+    <p>Aqui você pode encontrar especificações técnicas, ferramentas CAD e sistemas de simulação.</p>
+    <button class="close-btn" onclick="closeEngineeringModal()">Fechar</button>
+</div>
+
+<!-- jsPDF para geração de propostas e Chart.js para gráficos -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     // Função de login e controle de permissões
     function performLogin() {
-        // Lógica de login...
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const errorMessage = document.getElementById("errorMessage");
+
+        if (username === "admin" && password === "1234") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir todas as seções para o Admin
+            document.getElementById("engineeringSection").style.display = "block";
+            document.getElementById("financeSection").style.display = "block";
+            document.getElementById("projectsSection").style.display = "block";
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+
+            localStorage.setItem("user", "admin"); // Persistir sessão no localStorage
+
+            errorMessage.style.display = "none"; // Esconder mensagem de erro
+        } else if (username === "vendas" && password === "5678") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir apenas as seções de Vendas e Propostas
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+
+            localStorage.setItem("user", "vendas"); // Persistir sessão no localStorage
+
+            errorMessage.style.display = "none"; // Esconder mensagem de erro
+        } else {
+            errorMessage.style.display = "block"; // Exibir mensagem de erro
+        }
     }
 
     // Função de logout
     function performLogout() {
-        // Lógica de logout...
+        localStorage.removeItem("user");
+        document.getElementById("dashboard").style.display = "none";
+        document.getElementById("loginScreen").style.display = "block";
+        document.getElementById("logout").style.display = "none";
     }
 
     // Função para criar um novo card no Trello
     async function createTrelloCard() {
-        // Obter o valor selecionado no menu suspenso (ID da lista)
-        const idList = document.getElementById('trelloList').value;
-
         const cardData = {
             name: 'Novo Card',
             desc: 'Descrição do card',
-            idList: idList  // Usar o ID da lista selecionada
+            idList: '637bcb83e180fb01f774f697', // Substitua pelo ID da lista no Trello
         };
 
         try {
-            const response = await fetch('http://localhost:3000/create-card', {  // Substitua pela URL correta do seu backend
+            const response = await fetch('http://localhost:3000/create-card', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -233,7 +288,75 @@
         }
     }
 
-    // Outras funções, como a geração de proposta em PDF...
+    // Função para gerar proposta em PDF
+    function generateProposal() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Cabeçalho do PDF
+        doc.setFontSize(18);
+        doc.text('Proposta Comercial - Sistema Fotovoltaico', 20, 20);
+
+        // Informações do cliente
+        doc.setFontSize(12);
+        doc.text('Ao Sr. João da Silva', 20, 40);
+        doc.text('Endereço: Rua das Flores, 123, Maringá - PR', 20, 50);
+
+        // Seção de Características do Gerador
+        doc.setFontSize(14);
+        doc.text('1. Características do Gerador', 20, 70);
+        doc.setFontSize(12);
+        doc.text('Potência do Gerador: 184,97 kWp', 20, 80);
+        doc.text('Quantidade de Módulos: 349 módulos de 530W', 20, 90);
+        doc.text('Produção Anual Estimada: 283.020 kWh', 20, 100);
+        doc.text('Área Mínima Necessária: 910 m²', 20, 110);
+
+        // Seção de custos
+        doc.setFontSize(14);
+        doc.text('2. Investimento', 20, 130);
+        doc.setFontSize(12);
+        doc.text('Valor do Sistema: R$ 1.030.000,00', 20, 140);
+        doc.text('Condições de Pagamento: 30% de entrada e saldo em até 24 vezes.', 20, 150);
+
+        // Assinatura
+        doc.setFontSize(12);
+        doc.text('Atenciosamente,', 20, 180);
+        doc.text('Eduardo Reis - Sonergy Brasil', 20, 190);
+        doc.text('(44) 99179-6941', 20, 200);
+
+        // Gera o PDF e faz o download
+        doc.save('proposta_comercial_sonergy.pdf');
+    }
+
+    // Função para verificar a sessão do usuário ao carregar a página
+    window.onload = function() {
+        const user = localStorage.getItem("user");
+
+        if (user === "admin") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir todas as seções para o Admin
+            document.getElementById("engineeringSection").style.display = "block";
+            document.getElementById("financeSection").style.display = "block";
+            document.getElementById("projectsSection").style.display = "block";
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+
+        } else if (user === "vendas") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("logout").style.display = "inline-block";
+
+            // Exibir apenas as seções de Vendas e Propostas
+            document.getElementById("salesSection").style.display = "block";
+            document.getElementById("monitoringSection").style.display = "block";
+            document.getElementById("proposalSection").style.display = "block";
+        }
+    };
+
 </script>
 
 </body>
