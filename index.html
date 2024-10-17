@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Sonergy - Controle de Projetos</title>
+    <title>Dashboard Sonergy - Gerenciamento de Tarefas</title>
     <style>
+        /* ... estilizações do CSS aqui ... */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -18,221 +19,145 @@
             text-align: center;
             padding: 20px;
         }
-        #logout {
-            display: none;
-            float: right;
-            padding: 10px 20px;
-            background-color: #ff4d4d;
-            color: white;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-        }
-        #logout:hover {
-            background-color: #ff1a1a;
-        }
         .container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             padding: 20px;
-            margin: 0 auto;
         }
-        .partition {
-            background-color: white;
+        .task-section {
+            background: white;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        .partition:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        .partition h2 {
-            margin-bottom: 10px;
-            color: #001f3f;
-        }
-        .partition p {
-            font-size: 14px;
-            color: #666;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #001f3f;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #004080;
-        }
-        .card-list {
-            background: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .task-list {
+            margin-top: 15px;
             max-height: 300px;
             overflow-y: auto;
         }
-        .card-item {
-            background-color: #f9f9f9;
+        .task-item {
+            background: #f9f9f9;
             padding: 10px;
-            border-radius: 5px;
             margin-bottom: 5px;
+            border-radius: 5px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
-        .card-item h3 {
-            margin: 0;
-            font-size: 14px;
-        }
-        .card-item button {
-            background-color: #ff4d4d;
+        .task-item button {
+            background: #ff4d4d;
             border: none;
             color: white;
             border-radius: 3px;
             cursor: pointer;
+            padding: 5px 10px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #001f3f;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #004080;
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Dashboard Sonergy - Gerenciamento de Tarefas</h1>
+    </header>
 
-<header>
-    <h1>Dashboard Sonergy - Controle de Projetos</h1>
-    <button id="logout" onclick="performLogout()">Sair</button>
-</header>
-
-<!-- Tela de Login -->
-<div id="loginScreen" style="text-align: center; padding: 50px;">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Usuário" style="padding: 10px; margin-bottom: 10px;"><br>
-    <input type="password" id="password" placeholder="Senha" style="padding: 10px; margin-bottom: 10px;"><br>
-    <button onclick="performLogin()">Entrar</button>
-    <div class="error-message" id="errorMessage">Credenciais inválidas. Tente novamente.</div>
-</div>
-
-<!-- Dashboard -->
-<div id="dashboard" class="container" style="display:none;">
-    <!-- Card Management -->
-    <div class="partition">
-        <h2>Gerenciamento de Cards</h2>
-        <input type="text" id="cardTitle" placeholder="Título do Card" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-        <textarea id="cardDesc" placeholder="Descrição do Card" style="width: 100%; padding: 10px; margin-bottom: 10px;"></textarea>
-        <select id="listName" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-            <option value="FASE DOCUMENTAÇÃO">FASE DOCUMENTAÇÃO</option>
-            <option value="REPROVAS / PENDENTES">REPROVAS / PENDENTES</option>
-            <option value="ORÇAMENTO ESTIMADO">ORÇAMENTO ESTIMADO</option>
-            <option value="PROJETOS PARA ATUALIZAR">PROJETOS PARA ATUALIZAR</option>
-            <option value="ANÁLISE">ANÁLISE</option>
-            <option value="APROVADO - INVIABILIZADO">APROVADO - INVIABILIZADO</option>
-            <option value="APROVADOS">APROVADOS</option>
-            <option value="AGUARDANDO IMPEDÂNCIAS">AGUARDANDO IMPEDÂNCIAS</option>
-            <option value="COMPRA E NEGOCIAÇÃO">COMPRA E NEGOCIAÇÃO</option>
-            <option value="PARA ELABORAR EXECUTIVO">PARA ELABORAR EXECUTIVO</option>
-            <option value="EM EXECUÇÃO">EM EXECUÇÃO</option>
-            <option value="VISTORIA">VISTORIA</option>
-            <option value="PENDENCIAS">PENDENCIAS</option>
-            <option value="FINALIZADO">FINALIZADO</option>
-            <option value="DESISTENCIA - CANCELADO">DESISTENCIA - CANCELADO</option>
-        </select>
-        <button onclick="createLocalCard()">Criar Card</button>
-        <h3>Cards Criados:</h3>
-        <div class="card-list" id="cardList">
-            <!-- Cards serão listados aqui -->
+    <div class="container">
+        <div class="task-section">
+            <h2>Adicionar Tarefa</h2>
+            <input type="text" id="taskTitle" placeholder="Título da Tarefa">
+            <textarea id="taskDesc" placeholder="Descrição da Tarefa"></textarea>
+            <select id="listName">
+                <!-- Lista de categorias/estágios para a tarefa -->
+                <option value="FASE DOCUMENTAÇÃO">FASE DOCUMENTAÇÃO</option>
+                <option value="REPROVAS / PENDENTES">REPROVAS / PENDENTES</option>
+                <option value="ORÇAMENTO ESTIMADO">ORÇAMENTO ESTIMADO</option>
+                <!-- ... demais opções aqui ... -->
+            </select>
+            <button onclick="adicionarTarefa()">Adicionar Tarefa</button>
+        </div>
+        <div class="task-section">
+            <h2>Lista de Tarefas</h2>
+            <div class="task-list" id="taskList"></div>
         </div>
     </div>
-</div>
 
-<script>
-    const BACKEND_URL = 'http://localhost:3000'; // Ajuste conforme a URL do seu backend
+    <script>
+        const BACKEND_URL = 'http://localhost:3000'; // URL do backend
 
-    // Função de login e controle de permissões
-    function performLogin() {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const errorMessage = document.getElementById("errorMessage");
+        async function adicionarTarefa() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const desc = document.getElementById('taskDesc').value.trim();
+            const listName = document.getElementById('listName').value;
 
-        if (username === "admin" && password === "1234") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("logout").style.display = "inline-block";
-            loadTrelloCards(); // Carregar os cards do Trello ao logar
-        } else {
-            errorMessage.style.display = "block";
-        }
-    }
-
-    function createLocalCard() {
-        const title = document.getElementById('cardTitle').value.trim();
-        const desc = document.getElementById('cardDesc').value.trim();
-        const listName = document.getElementById('listName').value;
-
-        if (!title || !desc) {
-            alert('Por favor, preencha o título e a descrição.');
-            return;
-        }
-
-        // Criar card localmente
-        const cardElement = document.createElement('div');
-        cardElement.className = 'card-item';
-        cardElement.innerHTML = `
-            <h3>${title}</h3>
-            <button onclick="deleteLocalCard(this)">Deletar</button>
-        `;
-        document.getElementById('cardList').appendChild(cardElement);
-
-        // Sincronizar com o Trello
-        syncCardWithTrello(title, desc, listName);
-    }
-
-    function deleteLocalCard(element) {
-        const cardElement = element.parentElement;
-        cardElement.remove();
-        // Aqui você poderia adicionar a lógica para remover do Trello também
-    }
-
-    async function syncCardWithTrello(title, desc, listName) {
-        const cardData = {
-            name: title,
-            desc: desc,
-            listName: listName
-        };
-
-        try {
-            const response = await fetch(`${BACKEND_URL}/create-card`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(cardData)
-            });
-
-            if (response.ok) {
-                alert('Card sincronizado com sucesso no Trello!');
-            } else {
-                alert('Erro ao sincronizar o card com o Trello.');
+            if (!title || !desc) {
+                alert('Por favor, preencha o título e a descrição da tarefa.');
+                return;
             }
-        } catch (error) {
-            console.error('Erro ao sincronizar com o Trello:', error);
+
+            const taskElement = document.createElement('div');
+            taskElement.className = 'task-item';
+            taskElement.innerHTML = `
+                <div>
+                    <h3>${title}</h3>
+                    <p>${desc}</p>
+                    <small>Lista: ${listName}</small>
+                </div>
+                <button onclick="removerTarefa(this)">Remover</button>
+            `;
+            document.getElementById('taskList').appendChild(taskElement);
+
+            // Sincronizar tarefa com o Trello
+            sincronizarTarefaComTrello(title, desc, listName);
         }
-    }
 
-    async function loadTrelloCards() {
-        // Aqui você implementaria a lógica para carregar cards de uma lista específica do Trello e exibi-los.
-    }
+        function removerTarefa(element) {
+            const taskElement = element.parentElement;
+            taskElement.remove();
+            alert('Tarefa removida.');
+            // Adicionar lógica para remover do Trello, se necessário
+        }
 
-    function performLogout() {
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("loginScreen").style.display = "block";
-        document.getElementById("logout").style.display = "none";
-    }
-</script>
+        async function sincronizarTarefaComTrello(title, desc, listName) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/create-card`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: title, desc: desc, listName: listName }),
+                });
 
+                if (response.ok) {
+                    const data = await response.json();
+                    alert('Tarefa sincronizada com sucesso!');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Erro ao sincronizar com o Trello:', errorData);
+                    alert(`Erro ao sincronizar a tarefa: ${errorData.error || 'Erro desconhecido'}`);
+                }
+            } catch (error) {
+                console.error('Erro na sincronização com o Trello:', error);
+                alert('Erro ao sincronizar a tarefa. Verifique a conexão com o servidor.');
+            }
+        }
+    </script>
 </body>
 </html>
